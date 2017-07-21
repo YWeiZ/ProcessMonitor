@@ -1,0 +1,6 @@
+c:\users\tw-vrqa-1\documents\visual studio 2015\Projects\ProcessMonitor\ProcessMonitor\bin\Debug\ProcessMonitor.exe.config
+c:\users\tw-vrqa-1\documents\visual studio 2015\Projects\ProcessMonitor\ProcessMonitor\bin\Debug\ProcessMonitor.exe
+c:\users\tw-vrqa-1\documents\visual studio 2015\Projects\ProcessMonitor\ProcessMonitor\bin\Debug\ProcessMonitor.pdb
+c:\users\tw-vrqa-1\documents\visual studio 2015\Projects\ProcessMonitor\ProcessMonitor\obj\Debug\ProcessMonitor.csprojResolveAssemblyReference.cache
+c:\users\tw-vrqa-1\documents\visual studio 2015\Projects\ProcessMonitor\ProcessMonitor\obj\Debug\ProcessMonitor.exe
+c:\users\tw-vrqa-1\documents\visual studio 2015\Projects\ProcessMonitor\ProcessMonitor\obj\Debug\ProcessMonitor.pdb
