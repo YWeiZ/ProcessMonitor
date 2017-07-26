@@ -13,22 +13,27 @@ namespace ProcessMonitor
         #region Private Static Var
 
         PerformanceCounter mCounter;
+        PerformanceCounter mCounterTime;
         ProcessData mTragetProcess;
         
         bool mStopRequest = false;
         bool mMonitorStop = false;
+
+        double mElapsedTime = 0;
 
         double mUsage = 0;
         double mUsageMAX = 0;
         #endregion
         public bool MonitorStop { get { return mMonitorStop; } }
         
+        public double ElapsedTime { get { return mElapsedTime*1000; } }
+
         public double UsageB { get { return mUsage; } }
-        public double UsageKB { get { return mUsage / 1024; } }
+        public double UsageKB { get { return mUsage / 1024.0; } }
         public double UsageMB { get { return mUsage / Math.Pow(1024, 2); } }
         public double UsageGB { get { return mUsage / Math.Pow(1024, 3); } }
         public double UsageMAXB { get { return mUsageMAX; } }
-        public double UsageMAXKB { get { return mUsageMAX; } }
+        public double UsageMAXKB { get { return mUsageMAX / 1024.0; } }
         public double UsageMAXMB { get { return mUsageMAX / Math.Pow(1024, 2); } }
         public double UsageMAXGB { get { return mUsageMAX / Math.Pow(1024, 3); } }
 
@@ -40,6 +45,7 @@ namespace ProcessMonitor
             mMonitorStop = false;
             mTragetProcess = new ProcessData(targeProcess, pid);
             mCounter = new PerformanceCounter("Process", "Working Set", true);
+            mCounterTime = new PerformanceCounter("Process", "Elapsed Time", true);
         }
 
         public void Update()
@@ -47,7 +53,10 @@ namespace ProcessMonitor
             while (!mStopRequest)
             {
                 try
-                { mCounter.InstanceName = mTragetProcess.GetInstanceName(); }
+                {
+                    mCounter.InstanceName = mTragetProcess.GetInstanceName();
+                    mCounterTime.InstanceName = mTragetProcess.GetInstanceName();
+                }
                 catch (ArgumentException)
                 {
                     Console.WriteLine("Process isn't exisit.");
@@ -62,7 +71,11 @@ namespace ProcessMonitor
 
         void UpdateUsage()
         {
-            try { mUsage = (double)mCounter.NextValue(); }
+            try
+            {
+                mUsage = (double)mCounter.NextValue();
+                mElapsedTime = (double)mCounterTime.NextValue();
+            }
             catch (InvalidOperationException)
             {
                 Console.WriteLine("Instance Name Change or Process isn't exisit.");

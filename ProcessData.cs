@@ -10,8 +10,10 @@ namespace ProcessMonitor
         PerformanceCounter mIDCounter = new PerformanceCounter("Process", "ID Process", true);
         string mProcessName;
         int mPID = -1;
+        bool mNoPID = true;
 
-        string ProcessName
+
+        public string ProcessName
         {
             get { return mProcessName; }
             set
@@ -20,12 +22,19 @@ namespace ProcessMonitor
                 UpdateProcessName();
             }
         }
-        int PID { get { return mPID; } set { mPID = value; } }
+        public int PID { get { return mPID; } set { mPID = value; } }
 
         public ProcessData(string trace_pName, int pid = -1)
         {
             mProcessName = trace_pName;
-            mPID = pid;
+
+            if (pid == -1)
+                mNoPID = true;
+            else
+            {
+                mPID = pid;
+                mNoPID = false;
+            }
         }
 
         void UpdateProcessName()
@@ -47,19 +56,26 @@ namespace ProcessMonitor
             }
         }
 
-        public string GetInstanceName(int pid = -1)
+        public string GetInstanceName()
         {
-            int id = (pid != -1) ? pid : mPID;
-
-            if (id == -1)
-                throw new ArgumentException("Doesn't set target PID.");
 
             UpdateProcessName();
-            string instanceName = "";
-            if (!mProcessInstanceName.TryGetValue(id, out instanceName))
-                throw new ArgumentException("Invalid pid:" + id + ".");
+
+            if (mNoPID)
+            {
+                if (!mProcessInstanceName.ContainsValue(mProcessName))
+                    throw new ArgumentException("Invalid ProcessName:" + mProcessName + ".");
+                else
+                    return mProcessName;
+            }
             else
-                return instanceName;
+            {
+                string instanceName = "";
+                if (!mProcessInstanceName.TryGetValue(mPID, out instanceName))
+                    throw new ArgumentException("Invalid pid:" + mPID + ".");
+                else
+                    return instanceName;
+            }
         }
     }
 }
