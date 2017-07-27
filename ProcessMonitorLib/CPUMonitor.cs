@@ -1,19 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using System.Diagnostics;
 
-namespace ProcessMonitor
+namespace ProcessMonitorLib
 {
     public class CPUMonitor
     {
         #region Private Static Var
 
         static DateTime mLastUpdatTime;
-        int mUpdateTimes = 100;
 
         PerformanceCounter mCounter;
         PerformanceCounter mCounterTime;
@@ -25,53 +19,76 @@ namespace ProcessMonitor
 
         double mElapsedTime = 0;
 
+        int mInterval = 10;
+
         double mUsage = 0;
         double mUsageMAX = 0;
 
         double mSample = 0;
         long mSampleTimes = 0;
-        
+
         double mTotalSample = 0;
         long mTotalSampleTimes = 0;
         #endregion
         public bool MonitorStop { get { return mMonitorStop; } }
 
+
+        /// <summary>
+        /// 擷取時間點 程式總執行時間 (ms)
+        /// </summary>
         public double ElapsedTime { get { return mElapsedTime; } }
 
+        /// <summary>
+        /// CPU 使用率 (%)
+        /// </summary>
         public double Usage { get { return mUsage; } }
+        /// <summary>
+        /// CPU 平均使用率 (%)
+        /// </summary>
         public double UsageAvg { get { return (mTotalSampleTimes == 0) ? 0 : (mTotalSample / (double)mTotalSampleTimes); } }
+        /// <summary>
+        /// CPU 瞬間最大使用率 (%)
+        /// </summary>
         public double UsageMAX { get { return mUsageMAX; } }
+        
+        /// <summary>
+        /// 監測間隔時間(ms) min = 10
+        /// </summary>
+        public int Interval { get { return mInterval; } set { mInterval = Math.Max(value, 10); } }
 
-        public int UpdateTimes { get { return mUpdateTimes; } set { mUpdateTimes = value; } }
-
-        public CPUMonitor(string targeProcess,int pid)
+        public CPUMonitor(string targeProcess, int pid)
         {
             mStopRequest = false;
             mLastUpdatTime = DateTime.Now;
-            mTragetProcess = new ProcessData(targeProcess,pid);
+            mTragetProcess = new ProcessData(targeProcess, pid);
             mCounter = new PerformanceCounter("Process", "% Processor Time", true);
             mCounterTime = new PerformanceCounter("Process", "Elapsed Time", true);
         }
 
+        public void Watching()
+        {
+            while (!mStopRequest && !mMonitorStop)
+            {
+                Update();
+                System.Threading.Thread.Sleep(mInterval);
+            }
+        }
+
         public void Update()
         {
-            while (!mStopRequest)
+            try
             {
-                try
-                {
-                    mCounter.InstanceName = mTragetProcess.GetInstanceName();
-                    mCounterTime.InstanceName = mTragetProcess.GetInstanceName();
-                }
-                catch (ArgumentException)
-                {
-                    Console.WriteLine("Process isn't exisit.");
-                    mMonitorStop = true;
-                    return;
-                }
-                UpdateUsage();
-                System.Threading.Thread.Sleep(50);
+                mCounter.InstanceName = mTragetProcess.GetInstanceName();
+                mCounterTime.InstanceName = mTragetProcess.GetInstanceName();
             }
-        } 
+            catch (ArgumentException)
+            {
+                Console.WriteLine("Process isn't exisit.");
+                mMonitorStop = true;
+                return;
+            }
+            UpdateUsage();
+        }
 
         void UpdateUsage()
         {
@@ -97,7 +114,7 @@ namespace ProcessMonitor
             mTotalSampleTimes++;
 
             DateTime nowTime = DateTime.Now;
-            DateTime nextUpdateTime = mLastUpdatTime.AddMilliseconds(mUpdateTimes);
+            DateTime nextUpdateTime = mLastUpdatTime.AddMilliseconds(mInterval);
             if (nowTime >= nextUpdateTime)
             {
                 mUsage = (mSampleTimes == 0) ? 0 : mSample / (double)mSampleTimes;

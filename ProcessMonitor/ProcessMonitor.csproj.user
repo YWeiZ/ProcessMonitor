@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ReferencePath>
+    </ReferencePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <StartArguments>-LogFile "D:/" -ProcessFile "D:\JenkinsTestOutput\SpaceWalker\2017-07-27\X64\b204\SpaceWalker.exe" -GPUCapture "D:\Tools\FCAT-VR-analyzer-capture-overlay\FCAT-VR-analyzer-capture-overlay\FCAT_Capture_v3.18.0\Release\FCAT_VR_Capture.exe" -Interval 500</StartArguments>
+  </PropertyGroup>
+</Project>

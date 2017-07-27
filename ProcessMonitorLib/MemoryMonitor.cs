@@ -1,43 +1,76 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using System.Diagnostics;
 
-namespace ProcessMonitor
+namespace ProcessMonitorLib
 {
     public class MemoryMonitor
     {
+
         #region Private Static Var
 
         PerformanceCounter mCounter;
         PerformanceCounter mCounterTime;
         ProcessData mTragetProcess;
-        
+
         bool mStopRequest = false;
         bool mMonitorStop = false;
-
+        
         double mElapsedTime = 0;
+
+
+        int mInterval = 10;
 
         double mUsage = 0;
         double mUsageMAX = 0;
         #endregion
-        public bool MonitorStop { get { return mMonitorStop; } }
-        
-        public double ElapsedTime { get { return mElapsedTime*1000; } }
 
+        /// <summary>
+        /// Monitor 是否監控中
+        /// </summary>
+        public bool MonitorStop { get { return mMonitorStop; } }
+
+        /// <summary>
+        /// 擷取時間點 程式總執行時間 (ms)
+        /// </summary>
+        public double ElapsedTime { get { return mElapsedTime * 1000; } }
+
+        /// <summary>
+        /// 記憶體使用量(B)
+        /// </summary>
         public double UsageB { get { return mUsage; } }
+        /// <summary>
+        /// 記憶體使用量(KB)
+        /// </summary>
         public double UsageKB { get { return mUsage / 1024.0; } }
+        /// <summary>
+        /// 記憶體使用量(MB)
+        /// </summary>
         public double UsageMB { get { return mUsage / Math.Pow(1024, 2); } }
+        /// <summary>
+        /// 記憶體使用量(GB)
+        /// </summary>
         public double UsageGB { get { return mUsage / Math.Pow(1024, 3); } }
+        /// <summary>
+        /// 記憶體歷史最大使用量(B)
+        /// </summary>
         public double UsageMAXB { get { return mUsageMAX; } }
+        /// <summary>
+        /// 記憶體歷史最大使用量(KB)
+        /// </summary>
         public double UsageMAXKB { get { return mUsageMAX / 1024.0; } }
+        /// <summary>
+        /// 記憶體歷史最大使用量(MB)
+        /// </summary>
         public double UsageMAXMB { get { return mUsageMAX / Math.Pow(1024, 2); } }
+        /// <summary>
+        /// 記憶體歷史最大使用量(GB)
+        /// </summary>
         public double UsageMAXGB { get { return mUsageMAX / Math.Pow(1024, 3); } }
 
-
+        /// <summary>
+        /// 監測間隔時間(ms) min = 10
+        /// </summary>
+        public int Interval { get { return mInterval; } set { mInterval = Math.Max(value, 10); } }
 
         public MemoryMonitor(string targeProcess, int pid)
         {
@@ -48,26 +81,30 @@ namespace ProcessMonitor
             mCounterTime = new PerformanceCounter("Process", "Elapsed Time", true);
         }
 
-        public void Update()
+        public void Watching()
         {
-            while (!mStopRequest)
+            while (!mStopRequest && !mMonitorStop)
             {
-                try
-                {
-                    mCounter.InstanceName = mTragetProcess.GetInstanceName();
-                    mCounterTime.InstanceName = mTragetProcess.GetInstanceName();
-                }
-                catch (ArgumentException)
-                {
-                    Console.WriteLine("Process isn't exisit.");
-                    mMonitorStop = true;
-                    return;
-                }
-                UpdateUsage();
-                System.Threading.Thread.Sleep(50);
+                Update();
+                System.Threading.Thread.Sleep(mInterval);
             }
         }
 
+        public void Update()
+        {
+            try
+            {
+                mCounter.InstanceName = mTragetProcess.GetInstanceName();
+                mCounterTime.InstanceName = mTragetProcess.GetInstanceName();
+            }
+            catch (ArgumentException)
+            {
+                Console.WriteLine("Process isn't exisit.");
+                mMonitorStop = true;
+                return;
+            }
+            UpdateUsage();
+        }
 
         void UpdateUsage()
         {
@@ -83,12 +120,11 @@ namespace ProcessMonitor
             };
             mUsageMAX = Math.Max(mUsageMAX, mUsage);
         }
-        
+
         public void RequestStop()
         {
             mStopRequest = true;
         }
-        
+
     }
 }
-

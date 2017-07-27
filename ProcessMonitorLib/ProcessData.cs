@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace ProcessMonitor
+namespace ProcessMonitorLib
 {
-    public class ProcessData
+    class ProcessData
     {
         Dictionary<int, string> mProcessInstanceName = new Dictionary<int, string>();
         PerformanceCounter mIDCounter = new PerformanceCounter("Process", "ID Process", true);
@@ -36,6 +36,7 @@ namespace ProcessMonitor
                 mNoPID = false;
             }
         }
+
 
         void UpdateProcessName()
         {
